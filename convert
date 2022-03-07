@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+
+
+from PyQt5 import QtWidgets
+from design import Ui_MainWindow
+from sys import exit
+ 
+ 
+class mywindow(QtWidgets.QMainWindow):
+    def __init__(self):
+        super(mywindow, self).__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+
+        self.ui.toolButton.clicked.connect(self.converting)
+        self.ui.toolButton_2.clicked.connect(self.copyRGB)
+        # self.ui.toolButton_3.clicked.connect(self.converting)
+
+
+    def keyPressEvent(self, QKeyEvent):
+        int_key = QKeyEvent.key()
+        print(int_key)
+        if int_key == 16777216:
+            self.close()
+
+    def copyRGB(self):
+        text = QApplication.clipboard().setText(self.ui.lineEdit_2.text())
+
+
+    def converting(self):
+        hex = self.ui.lineEdit.text()
+        if hex[0] == '#':
+            hex = hex[1::]
+        print(hex)
+        rgb = ''    
+        for x in(0,2,4):
+            rgb = f'{rgb}{int(hex[x:x+2:],16)}, '
+        if len(hex) == 6:
+            opacity = 1.0
+        else:
+            opacity = f'{int(hex[6:],16)/255}'[:4:]
+        rgba = f'rgba({rgb}{opacity})'
+        rgb = f'rgb({rgb[:-2:]})'
+
+        self.ui.lineEdit_2.setText(rgb)
+        self.ui.lineEdit_3.setText(rgba)
+        self.ui.lineEdit_2.setStyleSheet(f'background: {rgb};')
+        self.ui.lineEdit_3.setStyleSheet(f'background: {rgba};')
+
+ 
+app = QtWidgets.QApplication([])
+application = mywindow()
+application.show()
+ 
+exit(app.exec())
+
