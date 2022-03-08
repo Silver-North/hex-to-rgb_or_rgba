@@ -2,19 +2,34 @@
 
 
 from PyQt5 import QtWidgets
+from PyQt5.QtGui import QIcon
 from design import Ui_MainWindow
 from sys import exit
- 
- 
+from pyperclip import copy
+from os import path, popen
+from time import sleep
+from threading import Thread
+
+
 class mywindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(mywindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.patch = path.dirname(path.realpath(__file__))
+        self.setGeometry(900, 55, 400, 300)
 
+        self.ui.toolButton.setIcon(QIcon(f'{self.patch}/change.png'))
+        self.ui.toolButton_4.setIcon(QIcon(f'{self.patch}/color.png'))
+        self.defaultIcon()
         self.ui.toolButton.clicked.connect(self.converting)
         self.ui.toolButton_2.clicked.connect(self.copyRGB)
-        # self.ui.toolButton_3.clicked.connect(self.converting)
+        self.ui.toolButton_3.clicked.connect(self.copyRGBA)
+        self.ui.toolButton_4.clicked.connect(self.colorPicker)
+
+    def defaultIcon(self):
+        self.ui.toolButton_2.setIcon(QIcon(f'{self.patch}/copy.png'))
+        self.ui.toolButton_3.setIcon(QIcon(f'{self.patch}/copy.png'))
 
 
     def keyPressEvent(self, QKeyEvent):
@@ -23,29 +38,63 @@ class mywindow(QtWidgets.QMainWindow):
         if int_key == 16777216:
             self.close()
 
+
+    def copyRGBA(self):
+        self.ui.toolButton_3.setIcon(QIcon(f'{self.patch}/completed.png'))
+        copy(self.ui.lineEdit_3.text())
+        Thread(target = self.threadProcA).start()
+        
+
+    def threadProcA(self):
+        var = 15
+        while True:
+            if var > 0:
+                var -= 20
+            else:
+                self.defaultIcon()
+                break
+            sleep(7)
+
+
+    def colorPicker(self):
+        text = popen('yad --color').read()
+        print(text[:-1:], type(text), len(text[:-1:]))
+        self.ui.lineEdit.setText(f'{text[:-1:]}')
+
+
     def copyRGB(self):
-        text = QApplication.clipboard().setText(self.ui.lineEdit_2.text())
+        self.ui.toolButton_2.setIcon(QIcon(f'{self.patch}/completed.png'))
+        copy(self.ui.lineEdit_2.text())
+        Thread(target = self.threadProcA).start()
 
 
     def converting(self):
         hex = self.ui.lineEdit.text()
         if hex[0] == '#':
             hex = hex[1::]
-        print(hex)
-        rgb = ''    
-        for x in(0,2,4):
-            rgb = f'{rgb}{int(hex[x:x+2:],16)}, '
-        if len(hex) == 6:
-            opacity = 1.0
-        else:
-            opacity = f'{int(hex[6:],16)/255}'[:4:]
-        rgba = f'rgba({rgb}{opacity})'
-        rgb = f'rgb({rgb[:-2:]})'
+        if len(hex) >= 6:
+            try:
+                int(hex,16)
+                print(hex)
+                rgb = ''    
+                for x in(0,2,4):
+                    rgb = f'{rgb}{int(hex[x:x+2:],16)}, '
+                if len(hex) == 6:
+                    opacity = 1.0
+                else:
+                    opacity = f'{int(hex[6:],16)/255}'[:4:]
+                rgba = f'rgba({rgb}{opacity})'
+                rgb = f'rgb({rgb[:-2:]})'
 
-        self.ui.lineEdit_2.setText(rgb)
-        self.ui.lineEdit_3.setText(rgba)
-        self.ui.lineEdit_2.setStyleSheet(f'background: {rgb};')
-        self.ui.lineEdit_3.setStyleSheet(f'background: {rgba};')
+                self.ui.lineEdit_2.setText(rgb)
+                self.ui.lineEdit_3.setText(rgba)
+                self.ui.lineEdit_2.setStyleSheet(f'background: {rgb};')
+                self.ui.lineEdit_3.setStyleSheet(f'background: {rgba};')
+            except ValueError:
+                print("No hex format")
+                self.ui.lineEdit.setText('')
+        else:
+            print('ERROR: code 404')
 
  
 app = QtWidgets.QApplication([])
