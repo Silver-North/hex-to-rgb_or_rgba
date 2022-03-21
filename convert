@@ -43,7 +43,7 @@ class mywindow(QtWidgets.QMainWindow):
         self.ui.toolButton_3.setIcon(QIcon(f'{self.patch}/completed.png'))
         copy(self.ui.lineEdit_3.text())
         Thread(target = self.threadProcA).start()
-        
+
 
     def threadProcA(self):
         var = 15
@@ -76,7 +76,7 @@ class mywindow(QtWidgets.QMainWindow):
             try:
                 int(hex,16)
                 print(hex)
-                rgb = ''    
+                rgb = ''
                 for x in(0,2,4):
                     rgb = f'{rgb}{int(hex[x:x+2:],16)}, '
                 if len(hex) == 6:
@@ -96,10 +96,10 @@ class mywindow(QtWidgets.QMainWindow):
         else:
             print('ERROR: code 404')
 
- 
+
 app = QtWidgets.QApplication([])
 application = mywindow()
 application.show()
- 
+
 exit(app.exec())
 
